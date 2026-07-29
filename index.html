@@ -61,31 +61,72 @@ function App() {
   useEffect(()=>{
     let ativo=true;
     async function carregar(){
-      const {data:res}=await supabase.from('reservas').select('*').eq('id_viagem',ID_VIAGEM_PADRAO); if(ativo&&res) setReservas(res);
+      const {data:res}=await supabase.from('reservas').select('*').eq('id_viagem',ID_VIAGEM_PADRAO); 
+      if(ativo&&res) setReservas(res);
+      
       const {data:pos}=await supabase.from('posicoes_veiculos').select('*').eq('id_viagem',ID_VIAGEM_PADRAO).order('atualizado_em',{ascending:false}).limit(1);
       if(ativo&&pos?.length) setPosicaoVeiculo({x:pos[0].x,y:pos[0].y,lat:pos[0].lat,lng:pos[0].lng});
     }
     carregar();
+    
     const sr=supabase.channel('r').on('postgres_changes',{event:'*',table:'reservas',filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`},(m)=>{
       setReservas(l=>[...l.filter(x=>x.id!==m.new?.id),m.new].filter(Boolean));
     }).subscribe();
-    const sp=supabase.channel('p').on('postgres_changes',{event:'INSERT',table:'posicoes_veiculos',filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`},(m)=>{if(m.new) setPosicaoVeiculo({x:m.new.x,y:m.new.y,lat:m.new.lat,lng:m.new.lng});}).subscribe();
+    
+    const sp=supabase.channel('p').on('postgres_changes',{event:'INSERT',table:'posicoes_veiculos',filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`},(m)=>{
+      if(m.new) setPosicaoVeiculo({x:m.new.x,y:m.new.y,lat:m.new.lat,lng:m.new.lng});
+    }).subscribe();
+
     return ()=>{ativo=false;supabase.removeChannel(sr);supabase.removeChannel(sp);};
   },[]);
 
   async function reservar(){
     if(!nome.trim()||!bairroEscolhido) return mostrarToast('Preencha nome e bairro!');
-    const {error}=await supabase.from('reservas').insert({id_viagem:ID_VIAGEM_PADRAO,nome,vagas,bairro:bairroEscolhido.nome,lat:bairroEscolhido.lat,lng:bairroEscolhido.lng,x:bairroEscolhido.x,y:bairroEscolhido.y,status:'pendente'});
-    if(error) return mostrarToast('Erro: '+error.message); mostrarToast('Reserva enviada!'); setNome('');setBairroEscolhido(null);setVagas(1);
+    const {error}=await supabase.from('reservas').insert({
+      id_viagem:ID_VIAGEM_PADRAO,
+      nome,
+      vagas,
+      bairro:bairroEscolhido.nome,
+      lat:bairroEscolhido.lat,
+      lng:bairroEscolhido.lng,
+      x:bairroEscolhido.x,
+      y:bairroEscolhido.y,
+      status:'pendente'
+    });
+    if(error) return mostrarToast('Erro: '+error.message); 
+    mostrarToast('Reserva enviada!'); 
+    setNome('');
+    setBairroEscolhido(null);
+    setVagas(1);
   }
+
   async function aceitar(id){
     if(!dadosMotorista.nome||!dadosMotorista.placa) return mostrarToast('Cadastre seus dados primeiro!');
-    await supabase.from('reservas').update({status:'aceita',...dadosMotorista}).eq('id',id).eq('id_viagem',ID_VIAGEM_PADRAO); mostrarToast('Reserva aceita!');
+    const {error} = await supabase.from('reservas').update({
+      status:'aceita',
+      motorista_nome: dadosMotorista.nome,
+      modelo: dadosMotorista.modelo,
+      cor: dadosMotorista.cor,
+      placa: dadosMotorista.placa
+    }).eq('id',id).eq('id_viagem',ID_VIAGEM_PADRAO);
+    if(error) return mostrarToast('Erro ao aceitar: '+error.message);
+    mostrarToast('Reserva aceita!');
   }
-  async function cancelar(id){await supabase.from('reservas').update({status:'cancelada'}).eq('id',id); mostrarToast('Cancelado');}
+
+  async function cancelar(id){
+    await supabase.from('reservas').update({status:'cancelada'}).eq('id',id); 
+    mostrarToast('Cancelado');
+  }
 
   async function moverVeiculoSimulacao(bairroTarget) {
-    const novaPos = { id_viagem: ID_VIAGEM_PADRAO, x: bairroTarget.x, y: bairroTarget.y, lat: bairroTarget.lat, lng: bairroTarget.lng, atualizado_em: new Date() };
+    const novaPos = { 
+      id_viagem: ID_VIAGEM_PADRAO, 
+      x: bairroTarget.x, 
+      y: bairroTarget.y, 
+      lat: bairroTarget.lat, 
+      lng: bairroTarget.lng, 
+      atualizado_em: new Date() 
+    };
     const { error } = await supabase.from('posicoes_veiculos').insert(novaPos);
     if(error) return mostrarToast('Erro ao mover: ' + error.message);
     mostrarToast('Veículo movido para ' + bairroTarget.nome);
@@ -169,7 +210,10 @@ function App() {
                 <p className="text-sm text-slate-600">{reservaAceita.modelo} • {reservaAceita.cor}</p>
                 <div className="inline-block bg-[#ffdd00] text-black font-black px-3 py-1 rounded-lg my-2 text-sm tracking-widest">{reservaAceita.placa}</div>
                 <p className="font-bold text-base text-[#0b3d91] mt-1">📍 {distancia} km de distância</p>
-                <div className="flex gap-3 mt-4"><a href={`tel:${reservaAceita.telefone || ''}`} className="btn-principal flex-1 text-center text-sm">📞 Ligar</a><button className="bg-red-500 text-white flex-1 py-3 rounded-full text-sm font-bold" onClick={()=>cancelar(reservaAtiva.id)}>❌ Cancelar</button></div>
+                <div className="flex gap-3 mt-4">
+                  <a href={`tel:${reservaAceita.telefone || ''}`} className="btn-principal flex-1 text-center text-sm">📞 Ligar</a>
+                  <button className="bg-red-500 text-white flex-1 py-3 rounded-full text-sm font-bold" onClick={()=>cancelar(reservaAtiva.id)}>❌ Cancelar</button>
+                </div>
               </div>
             ):(
               <div className="card p-5 text-center">
@@ -182,7 +226,10 @@ function App() {
         ):(
           <div className="space-y-4">
             <div className="card p-5">
-              <div className="flex items-center justify-between mb-3"><h3 className="font-bold text-[15px] flex items-center gap-2">Meu veículo</h3><span className="text-[10px] bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">salvo automaticamente</span></div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-[15px] flex items-center gap-2">Meu veículo</h3>
+                <span className="text-[10px] bg-green-50 text-green-700 px-2 py-1 rounded-full border border-green-200">salvo automaticamente</span>
+              </div>
               <div className="grid gap-3">
                 <label className="text-xs font-semibold">Nome motorista<input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none" value={dadosMotorista.nome} onChange={e=>setDadosMotorista({...dadosMotorista,nome:e.target.value})}/></label>
                 <div className="grid grid-cols-2 gap-3">
@@ -194,7 +241,10 @@ function App() {
             </div>
 
             <div className="card p-4 bg-[#0b3d91] text-white">
-              <div className="flex items-center justify-between"><div><div className="font-bold">Corrida {ID_VIAGEM_PADRAO}</div><div className="text-xs opacity-80">GPS sincronizado com posicoes_veiculos</div></div><div className="w-3 h-3 rounded-full bg-white/40"></div></div>
+              <div className="flex items-center justify-between">
+                <div><div className="font-bold">Corrida {ID_VIAGEM_PADRAO}</div><div className="text-xs opacity-80">GPS sincronizado com posicoes_veiculos</div></div>
+                <div className="w-3 h-3 rounded-full bg-white/40"></div>
+              </div>
               <div className="mt-3 text-[11px] opacity-70">Clique nos bairros do mapa para simular o trajeto em tempo real.</div>
             </div>
 
