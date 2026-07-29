@@ -4,86 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lotação Zona Sul Manaus</title>
-    <!-- CDNs GRÁTIS E COMPATÍVEIS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <!-- DESIGN FIXO -->
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primario: '#0b3d91',
-                        fundo: '#f5f7fb',
-                        mapafundo: '#eaf0ff',
-                        destaque: '#ffdd00'
-                    }
-                }
-            }
-        }
+        tailwind.config = {theme:{extend:{colors:{primario:'#0b3d91',fundo:'#f5f7fb',mapafundo:'#eaf0ff',destaque:'#ffdd00'}}}}
     </script>
     <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto { content-visibility: auto; }
-            .pill { @apply bg-white/15 rounded-full px-4 py-1; }
-            .card { @apply bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)]; }
-            .btn-principal { @apply rounded-full bg-primario text-white py-3 font-black tracking-wide active:opacity-90; }
-            .toast { @apply fixed bottom-5 left-1/2 -translate-x-1/2 bg-primario text-white rounded-full px-6 py-3 shadow-lg z-50; }
-            .icone { @apply inline-block w-5 h-5 align-middle; }
-        }
-        * { -webkit-tap-highlight-color: transparent; }
-        .map-container {
-            background: #eaf0ff;
-            background-image: radial-gradient(#0b3d9122 1px, transparent 1px);
-            background-size: 20px 20px;
-            min-height: 320px;
-            position: relative;
-            overflow: hidden;
-        }
-        .ponto-bairro {
-            position: absolute;
-            width: 14px;
-            height: 14px;
-            background: #0b3d91;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-        }
-        .ponto-veiculo {
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            background: #ef4444;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            box-shadow: 0 0 0 3px white;
-            transition: left 0.8s ease, top 0.8s ease;
-            display:flex; align-items:center; justify-content:center; color:white; font-size:12px; font-weight:bold;
-        }
+        @layer utilities {.content-auto{content-visibility:auto;}.pill{@apply bg-white/15 rounded-full px-4 py-1;}.card{@apply bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)];}.btn-principal{@apply rounded-full bg-primario text-white py-3 font-black tracking-wide active:opacity-90;}.toast{@apply fixed bottom-5 left-1/2 -translate-x-1/2 bg-primario text-white rounded-full px-6 py-3 shadow-lg z-50;}.icone{@apply inline-block w-5 h-5 align-middle;}}
+        *{-webkit-tap-highlight-color:transparent;}
+        .map-container{background:#eaf0ff;background-image:radial-gradient(#0b3d9122 1px,transparent 1px);background-size:20px 20px;min-height:320px;position:relative;overflow:hidden;}
+        .ponto-bairro{position:absolute;width:14px;height:14px;background:#0b3d91;border-radius:50%;transform:translate(-50%,-50%);z-index:10;}
+        .ponto-veiculo{position:absolute;width:22px;height:22px;background:#ef4444;border-radius:50%;transform:translate(-50%,-50%);z-index:20;box-shadow:0 0 0 3px white;transition:left 0.8s ease,top 0.8s ease;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;}
     </style>
 </head>
 <body class="bg-fundo text-gray-800 antialiased">
 <div id="root"></div>
-
 <script type="text/babel">
 const { useState, useEffect } = React;
-
-// ==============================================
-// DADOS FIXOS DO SEU PROJETO - JÁ CONFIGURADOS
-// ==============================================
 const SUPABASE_URL = "https://xpsnkdgzmljpwjhmontr.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhwc25rZGd6bWxqcHdqaG1vbnRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwNTU0NTEsImV4cCI6MjEwMDYzMTQ1MX0.aVkhCnepgtpFPelVOV1fwXQnLXYjrQ53uqfWer71R4s";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// BAIRROS DA ZONA SUL - COORDENADAS TELA + GPS
+// ✅ LISTA COMPLETA COM MORRO DA LIBERDADE (posição e coordenadas reais ajustadas)
 const BAIRROS = [
   {id:'betania', nome:'Betânia', x:22, y:18, lat:-3.1325, lng:-60.025},
   {id:'saolazaro', nome:'São Lázaro', x:38, y:28, lat:-3.135, lng:-60.02},
   {id:'lagoaverde', nome:'Lagoa Verde', x:12, y:45, lat:-3.14, lng:-60.03},
+  {id:'morroliberdade', nome:'Morro da Liberdade', x:30, y:52, lat:-3.143, lng:-60.026},
   {id:'colonia', nome:'Colônia O. Machado', x:52, y:58, lat:-3.145, lng:-60.015},
   {id:'educandos', nome:'Educandos', x:68, y:42, lat:-3.138, lng:-60.01},
   {id:'santaluzia', nome:'Santa Luzia', x:75, y:22, lat:-3.128, lng:-60.008},
@@ -91,170 +41,96 @@ const BAIRROS = [
 ];
 const ID_VIAGEM_PADRAO = "LOTACAO_ZS_01";
 
-// CÁLCULO DE DISTÂNCIA HAVERSINE
 function calcularDistancia(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1)*Math.PI/180;
-  const dLon = (lon2 - lon1)*Math.PI/180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) *10)/10;
+  const R = 6371; const dLat=(lat2-lat1)*Math.PI/180; const dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*10)/10;
 }
 
 function App() {
-  const [aba, setAba] = useState('passageiro');
-  const [nome, setNome] = useState('');
-  const [vagas, setVagas] = useState(1);
-  const [bairroEscolhido, setBairroEscolhido] = useState(null);
-  const [reservas, setReservas] = useState([]);
-  const [posicaoVeiculo, setPosicaoVeiculo] = useState({x:50, y:50, lat:-3.138, lng:-60.015});
-  const [dadosMotorista, setDadosMotorista] = useState({nome:'', modelo:'', cor:'', placa:''});
-  const [toast, setToast] = useState(null);
+  const [aba,setAba]=useState('passageiro'); const [nome,setNome]=useState(''); const [vagas,setVagas]=useState(1);
+  const [bairroEscolhido,setBairroEscolhido]=useState(null); const [reservas,setReservas]=useState([]);
+  const [posicaoVeiculo,setPosicaoVeiculo]=useState({x:50,y:50,lat:-3.138,lng:-60.015});
+  const [dadosMotorista,setDadosMotorista]=useState({nome:'',modelo:'',cor:'',placa:''}); const [toast,setToast]=useState(null);
 
-  function mostrarToast(texto, duracao=2500) {
-    setToast(texto); setTimeout(()=>setToast(null), duracao);
-  }
+  function mostrarToast(t){setToast(t);setTimeout(()=>setToast(null),2500);}
 
-  // CARREGAR DADOS E TEMPO REAL
-  useEffect(() => {
-    async function carregar() {
-      const {data: resData} = await supabase.from('reservas').select('*').eq('id_viagem', ID_VIAGEM_PADRAO);
-      if(resData) setReservas(resData);
-      const {data: posData} = await supabase.from('posicoes_veiculos').select('*').eq('id_viagem', ID_VIAGEM_PADRAO).order('atualizado_em', {asc:false}).limit(1);
-      if(posData?.length) setPosicaoVeiculo({x:posData[0].x, y:posData[0].y, lat:posData[0].lat, lng:posData[0].lng});
+  useEffect(()=>{
+    let ativo=true;
+    async function carregar(){
+      const {data:res}=await supabase.from('reservas').select('*').eq('id_viagem',ID_VIAGEM_PADRAO); if(ativo&&res) setReservas(res);
+      const {data:pos}=await supabase.from('posicoes_veiculos').select('*').eq('id_viagem',ID_VIAGEM_PADRAO).order('atualizado_em',{asc:false}).limit(1);
+      if(ativo&&pos?.length) setPosicaoVeiculo({x:pos[0].x,y:pos[0].y,lat:pos[0].lat,lng:pos[0].lng});
     }
     carregar();
-    // INSCRIÇÃO EM TEMPO REAL
-    const subRes = supabase.channel('reservas-realtime')
-      .on('postgres_changes', {event:'*', table:'reservas', filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`}, (msg)=>{
-        setReservas(antigas => {
-          const semAntiga = antigas.filter(r => r.id !== msg.new?.id);
-          return msg.new ? [...semAntiga, msg.new] : semAntiga;
-        });
-      }).subscribe();
-    const subPos = supabase.channel('posicoes-realtime')
-      .on('postgres_changes', {event:'INSERT', table:'posicoes_veiculos', filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`}, (msg)=>{
-        if(msg.new) setPosicaoVeiculo({x:msg.new.x, y:msg.new.y, lat:msg.new.lat, lng:msg.new.lng});
-      }).subscribe();
-    return ()=>{supabase.removeChannel(subRes); supabase.removeChannel(subPos);};
-  }, []);
+    const sr=supabase.channel('r').on('postgres_changes',{event:'*',table:'reservas',filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`},(m)=>{
+      setReservas(l=>[...l.filter(x=>x.id!==m.new?.id),m.new].filter(Boolean));
+    }).subscribe();
+    const sp=supabase.channel('p').on('postgres_changes',{event:'INSERT',table:'posicoes_veiculos',filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`},(m)=>{if(m.new) setPosicaoVeiculo({x:m.new.x,y:m.new.y,lat:m.new.lat,lng:m.new.lng});}).subscribe();
+    return ()=>{ativo=false;supabase.removeChannel(sr);supabase.removeChannel(sp);};
+  },[]);
 
-  // RESERVAR VAGA
-  async function reservar() {
-    if(!nome.trim() || !bairroEscolhido) return mostrarToast('Preencha nome e bairro!');
-    const {error} = await supabase.from('reservas').insert({
-      id_viagem: ID_VIAGEM_PADRAO, nome, vagas, bairro: bairroEscolhido.nome, 
-      lat:bairroEscolhido.lat, lng:bairroEscolhido.lng, x:bairroEscolhido.x, y:bairroEscolhido.y, status:'pendente'
-    });
-    if(error) return mostrarToast('Erro: '+error.message);
-    mostrarToast('Reserva enviada!'); setNome(''); setBairroEscolhido(null); setVagas(1);
+  async function reservar(){
+    if(!nome.trim()||!bairroEscolhido) return mostrarToast('Preencha nome e bairro!');
+    const {error}=await supabase.from('reservas').insert({id_viagem:ID_VIAGEM_PADRAO,nome,vagas,bairro:bairroEscolhido.nome,lat:bairroEscolhido.lat,lng:bairroEscolhido.lng,x:bairroEscolhido.x,y:bairroEscolhido.y,status:'pendente'});
+    if(error) return mostrarToast('Erro: '+error.message); mostrarToast('Reserva enviada!'); setNome('');setBairroEscolhido(null);setVagas(1);
   }
-
-  // ACEITAR / CANCELAR
-  async function aceitar(id) {
-    if(!dadosMotorista.nome.trim() || !dadosMotorista.placa) return mostrarToast('Cadastre seus dados primeiro!');
-    await supabase.from('reservas').update({status:'aceita', ...dadosMotorista}).eq('id', id).eq('id_viagem', ID_VIAGEM_PADRAO);
-    mostrarToast('Reserva aceita!');
+  async function aceitar(id){
+    if(!dadosMotorista.nome||!dadosMotorista.placa) return mostrarToast('Cadastre seus dados primeiro!');
+    await supabase.from('reservas').update({status:'aceita',...dadosMotorista}).eq('id',id).eq('id_viagem',ID_VIAGEM_PADRAO); mostrarToast('Reserva aceita!');
   }
-  async function cancelar(id) { 
-    await supabase.from('reservas').update({status:'cancelada'}).eq('id',id); 
-    mostrarToast('Cancelado'); 
-  }
+  async function cancelar(id){await supabase.from('reservas').update({status:'cancelada'}).eq('id',id); mostrarToast('Cancelado');}
 
-  const reservaAtiva = reservas.find(r=>r.nome===nome && ['pendente','aceita'].includes(r.status));
-  const reservaAceita = reservas.find(r=>r.status==='aceita');
-  const distancia = reservaAceita ? calcularDistancia(posicaoVeiculo.lat, posicaoVeiculo.lng, reservaAceita.lat, reservaAceita.lng) : '--';
+  const reservaAtiva=reservas.find(r=>r.nome===nome&&['pendente','aceita'].includes(r.status));
+  const reservaAceita=reservas.find(r=>r.status==='aceita');
+  const distancia=reservaAceita?calcularDistancia(posicaoVeiculo.lat,posicaoVeiculo.lng,reservaAceita.lat,reservaAceita.lng):'--';
 
-  return (
-    <div className="max-w-lg mx-auto pb-8">
-      {/* CABEÇALHO */}
-      <header className="sticky top-0 z-30 bg-primario h-16 flex items-center px-4 shadow-lg">
-        <div className="w-9 h-9 rounded-xl bg-white text-primario font-black text-xl flex items-center justify-center mr-3">L</div>
-        <h1 className="text-white font-bold text-lg">Lotação Zona Sul Manaus</h1>
-      </header>
-      {/* ABAS */}
-      <div className="flex bg-primario/90 px-4 pb-3 gap-2">
-        <button className={`pill ${aba==='passageiro'?'bg-white text-primario':'text-white'}`} onClick={()=>setAba('passageiro')}>
-          <span className="icone">👤</span> Passageiro
-        </button>
-        <button className={`pill ${aba==='motorista'?'bg-white text-primario':'text-white'}`} onClick={()=>setAba('motorista')}>
-          <span className="icone">🚗</span> Motorista
-        </button>
-      </div>
-
-      {/* MAPA PRINCIPAL */}
-      <div className="map-container m-4 rounded-xl shadow-lg">
-        {BAIRROS.map(b=>(
-          <div key={b.id} className="ponto-bairro" style={{left:`${b.x}%`, top:`${b.y}%`}} title={b.nome}/>
-        ))}
-        <div className="ponto-veiculo" style={{left:`${posicaoVeiculo.x}%`, top:`${posicaoVeiculo.y}%`}}>🚘</div>
-      </div>
-
-      {/* ABA PASSAGEIRO */}
-      {aba==='passageiro' && (
-        <div className="px-4 space-y-4">
-          {!reservaAtiva ? (
-            <div className="card p-5">
-              <h2 className="font-bold text-lg mb-4">Reservar lugar</h2>
-              <input className="w-full border p-3 rounded-lg mb-3" placeholder="Seu nome completo" value={nome} onChange={e=>setNome(e.target.value)}/>
-              <select className="w-full border p-3 rounded-lg mb-3" value={bairroEscolhido?.id||''} onChange={e=>setBairroEscolhido(BAIRROS.find(x=>x.id===e.target.value))}>
-                <option value="">Escolha seu bairro</option>
-                {BAIRROS.map(b=><option key={b.id} value={b.id}>{b.nome}</option>)}
-              </select>
-              <div className="flex gap-3 items-center mb-4">
-                <span>Vagas: </span> 
-                {[1,2,3,4].map(n=><button key={n} className={`w-10 h-10 rounded-full border ${vagas===n?'bg-primario text-white':''}`} onClick={()=>setVagas(n)}>{n}</button>)}
-              </div>
-              <button className="btn-principal w-full" onClick={reservar}>SOLICITAR LUGAR</button>
-            </div>
-          ) : reservaAtiva.status==='aceita' ? (
-            <div className="card p-5 border-l-4 border-green-500">
-              <h2 className="font-bold text-lg text-green-700 mb-2">🚗 Motorista a caminho!</h2>
-              <p className="text-lg"><strong>{reservaAceita.motorista_nome}</strong></p>
-              <p>{reservaAceita.modelo} / {reservaAceita.cor}</p>
-              <p className="inline-block bg-destaque text-black font-bold px-3 py-1 rounded my-2">{reservaAceita.placa}</p>
-              <p className="font-bold text-lg">📍 {distancia} km de distância</p>
-              <div className="flex gap-3 mt-4">
-                <a href="tel:0000000000" className="btn-principal flex-1 text-center">📞 Ligar</a>
-                <button className="bg-red-500 text-white flex-1 py-3 rounded-full" onClick={()=>cancelar(reservaAtiva.id)}>❌ Cancelar</button>
-              </div>
-            </div>
-          ) : (
-            <div className="card p-5 text-center">
-              <p className="text-lg">⏳ Aguardando motorista aceitar...</p>
-              <p className="text-gray-500 mt-2">Bairro: {reservaAtiva.bairro} | Vagas: {reservaAtiva.vagas}</p>
-              <button className="mt-4 bg-red-100 text-red-700 px-4 py-2 rounded-full" onClick={()=>cancelar(reservaAtiva.id)}>Cancelar reserva</button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ABA MOTORISTA */}
-      {aba==='motorista' && (
-        <div className="px-4 space-y-4">
-          <div className="card p-5">
-            <h2 className="font-bold text-lg mb-4">Meu Veículo</h2>
-            <input className="w-full border p-3 rounded-lg mb-2" placeholder="Seu nome" value={dadosMotorista.nome} onChange={e=>setDadosMotorista({...dadosMotorista, nome:e.target.value})}/>
-            <div className="grid grid-cols-3 gap-2">
-              <input className="border p-3 rounded-lg" placeholder="Modelo" value={dadosMotorista.modelo} onChange={e=>setDadosMotorista({...dadosMotorista, modelo:e.target.value})}/>
-              <input className="border p-3 rounded-lg" placeholder="Cor" value={dadosMotorista.cor} onChange={e=>setDadosMotorista({...dadosMotorista, cor:e.target.value})}/>
-              <input className="border p-3 rounded-lg font-bold tracking-widest bg-destaque/20" placeholder="Placa" maxLength={7} value={dadosMotorista.placa} onChange={e=>setDadosMotorista({...dadosMotorista, placa:e.target.value.toUpperCase()})}/>
-            </div>
-          </div>
-          <div className="card p-5">
-            <h3 className="font-bold text-lg mb-3">Reservas recebidas ({reservas.filter(r=>r.status==='pendente').length})</h3>
-            {reservas.filter(r=>r.status==='pendente').length===0 ? <p className="text-gray-500">Nenhuma reserva por enquanto</p> :
-            reservas.filter(r=>r.status==='pendente').map(r=>(
-              <div key={r.id} className="border-b py-3 flex justify-between items-center">
-                <div><p className="font-bold">{r.nome}</p><p className="text-sm text-gray-600">{r.bairro} • {r.vagas} vaga(s)</p></div>
-                <button className="btn-principal text-sm px-4 py-2" onClick={()=>aceitar(r.id)}>Aceitar</button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {toast && <div className="toast">{toast}</div>}
+  return <div className="max-w-lg mx-auto pb-8">
+    <header className="sticky top-0 z-30 bg-primario h-16 flex items-center px-4 shadow-lg">
+      <div className="w-9 h-9 rounded-xl bg-white text-primario font-black text-xl flex items-center justify-center mr-3">L</div>
+      <h1 className="text-white font-bold text-lg">Lotação Zona Sul Manaus</h1>
+    </header>
+    <div className="flex bg-primario/90 px-4 pb-3 gap-2">
+      <button className={`pill ${aba==='passageiro'?'bg-white text-primario':'text-white'}`} onClick={()=>setAba('passageiro')}><span className="icone">👤</span> Passageiro</button>
+      <button className={`pill ${aba==='motorista'?'bg-white text-primario':'text-white'}`} onClick={()=>setAba('motorista')}><span className="icone">🚗</span> Motorista</button>
     </div>
-  );
+    <div className="map-container m-4 rounded-xl shadow-lg">
+      {BAIRROS.map(b=><div key={b.id} className="ponto-bairro" style={{left:`${b.x}%`,top:`${b.y}%`}} title={b.nome}/>)}
+      <div className="ponto-veiculo" style={{left:`${posicaoVeiculo.x}%`,top:`${posicaoVeiculo.y}%`}}>🚘</div>
+    </div>
+    {aba==='passageiro'&&<div className="px-4 space-y-4">
+      {!reservaAtiva?<div className="card p-5"><h2 className="font-bold text-lg mb-4">Reservar lugar</h2>
+        <input className="w-full border p-3 rounded-lg mb-3" placeholder="Seu nome completo" value={nome} onChange={e=>setNome(e.target.value)}/>
+        <select className="w-full border p-3 rounded-lg mb-3" value={bairroEscolhido?.id||''} onChange={e=>setBairroEscolhido(BAIRROS.find(x=>x.id===e.target.value))}>
+          <option value="">Escolha seu bairro</option>
+          {BAIRROS.map(b=><option key={b.id} value={b.id}>{b.nome}</option>)}
+        </select>
+        <div className="flex gap-3 items-center mb-4"><span>Vagas: </span>{[1,2,3,4].map(n=><button key={n} className={`w-10 h-10 rounded-full border ${vagas===n?'bg-primario text-white':''}`} onClick={()=>setVagas(n)}>{n}</button>)}</div>
+        <button className="btn-principal w-full" onClick={reservar}>SOLICITAR LUGAR</button>
+      </div>:reservaAtiva.status==='aceita'?<div className="card p-5 border-l-4 border-green-500">
+        <h2 className="font-bold text-lg text-green-700 mb-2">🚗 Motorista a caminho!</h2>
+        <p className="text-lg"><strong>{reservaAceita.motorista_nome}</strong></p>
+        <p>{reservaAceita.modelo} / {reservaAceita.cor}</p>
+        <p className="inline-block bg-destaque text-black font-bold px-3 py-1 rounded my-2">{reservaAceita.placa}</p>
+        <p className="font-bold text-lg">📍 {distancia} km de distância</p>
+        <div className="flex gap-3 mt-4"><a href="tel:0000000000" className="btn-principal flex-1 text-center">📞 Ligar</a><button className="bg-red-500 text-white flex-1 py-3 rounded-full" onClick={()=>cancelar(reservaAtiva.id)}>❌ Cancelar</button></div>
+      </div>:<div className="card p-5 text-center"><p className="text-lg">⏳ Aguardando motorista aceitar...</p><p className="text-gray-500 mt-2">Bairro: {reservaAtiva.bairro} | Vagas: {reservaAtiva.vagas}</p><button className="mt-4 bg-red-100 text-red-700 px-4 py-2 rounded-full" onClick={()=>cancelar(reservaAtiva.id)}>Cancelar reserva</button></div>}
+    </div>}
+    {aba==='motorista'&&<div className="px-4 space-y-4">
+      <div className="card p-5"><h2 className="font-bold text-lg mb-4">Meu Veículo</h2>
+        <input className="w-full border p-3 rounded-lg mb-2" placeholder="Seu nome" value={dadosMotorista.nome} onChange={e=>setDadosMotorista({...dadosMotorista,nome:e.target.value})}/>
+        <div className="grid grid-cols-3 gap-2">
+          <input className="border p-3 rounded-lg" placeholder="Modelo" value={dadosMotorista.modelo} onChange={e=>setDadosMotorista({...dadosMotorista,modelo:e.target.value})}/>
+          <input className="border p-3 rounded-lg" placeholder="Cor" value={dadosMotorista.cor} onChange={e=>setDadosMotorista({...dadosMotorista,cor:e.target.value})}/>
+          <input className="border p-3 rounded-lg font-bold tracking-widest bg-destaque/20" placeholder="Placa" maxLength={7} value={dadosMotorista.placa} onChange={e=>setDadosMotorista({...dadosMotorista,placa:e.target.value.toUpperCase()})}/>
+        </div>
+      </div>
+      <div className="card p-5"><h3 className="font-bold text-lg mb-3">Reservas recebidas ({reservas.filter(r=>r.status==='pendente').length})</h3>
+      {reservas.filter(r=>r.status==='pendente').length===0 ? <p className="text-gray-500">Nenhuma reserva por enquanto</p> :
+      reservas.filter(r=>r.status==='pendente').map(r=><div key={r.id} className="border-b py-3 flex justify-between items-center"><div><p className="font-bold">{r.nome}</p><p className="text-sm text-gray-600">{r.bairro} • {r.vagas} vaga(s)</p></div><button className="btn-principal text-sm px-4 py-2" onClick={()=>aceitar(r.id)}>Aceitar</button></div>)}
+    </div>}
+    {toast&&<div className="toast">{toast}</div>}
+  </div>;
 }
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
