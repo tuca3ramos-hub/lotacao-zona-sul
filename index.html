@@ -28,7 +28,6 @@ const SUPABASE_URL = "https://xpsnkdgzmljpwjhmontr.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhwc25rZGd6bWxqcHdqaG1vbnRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwNTU0NTEsImV4cCI6MjEwMDYzMTQ1MX0.aVkhCnepgtpFPelVOV1fwXQnLXYjrQ53uqfWer71R4s";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ✅ LISTA COMPLETA COM MORRO DA LIBERDADE (posição e coordenadas reais ajustadas)
 const BAIRROS = [
   {id:'betania', nome:'Betânia', x:22, y:18, lat:-3.1325, lng:-60.025},
   {id:'saolazaro', nome:'São Lázaro', x:38, y:28, lat:-3.135, lng:-60.02},
@@ -59,7 +58,7 @@ function App() {
     let ativo=true;
     async function carregar(){
       const {data:res}=await supabase.from('reservas').select('*').eq('id_viagem',ID_VIAGEM_PADRAO); if(ativo&&res) setReservas(res);
-      const {data:pos}=await supabase.from('posicoes_veiculos').select('*').eq('id_viagem',ID_VIAGEM_PADRAO).order('atualizado_em',{asc:false}).limit(1);
+      const {data:pos}=await supabase.from('posicoes_veiculos').select('*').eq('id_viagem',ID_VIAGEM_PADRAO).order('atualizado_em',{ascending:false}).limit(1);
       if(ativo&&pos?.length) setPosicaoVeiculo({x:pos[0].x,y:pos[0].y,lat:pos[0].lat,lng:pos[0].lng});
     }
     carregar();
@@ -125,9 +124,11 @@ function App() {
           <input className="border p-3 rounded-lg font-bold tracking-widest bg-destaque/20" placeholder="Placa" maxLength={7} value={dadosMotorista.placa} onChange={e=>setDadosMotorista({...dadosMotorista,placa:e.target.value.toUpperCase()})}/>
         </div>
       </div>
-      <div className="card p-5"><h3 className="font-bold text-lg mb-3">Reservas recebidas ({reservas.filter(r=>r.status==='pendente').length})</h3>
-      {reservas.filter(r=>r.status==='pendente').length===0 ? <p className="text-gray-500">Nenhuma reserva por enquanto</p> :
-      reservas.filter(r=>r.status==='pendente').map(r=><div key={r.id} className="border-b py-3 flex justify-between items-center"><div><p className="font-bold">{r.nome}</p><p className="text-sm text-gray-600">{r.bairro} • {r.vagas} vaga(s)</p></div><button className="btn-principal text-sm px-4 py-2" onClick={()=>aceitar(r.id)}>Aceitar</button></div>)}
+      <div className="card p-5">
+        <h3 className="font-bold text-lg mb-3">Reservas recebidas ({reservas.filter(r=>r.status==='pendente').length})</h3>
+        {reservas.filter(r=>r.status==='pendente').length===0 ? <p className="text-gray-500">Nenhuma reserva por enquanto</p> :
+        reservas.filter(r=>r.status==='pendente').map(r=><div key={r.id} className="border-b py-3 flex justify-between items-center"><div><p className="font-bold">{r.nome}</p><p className="text-sm text-gray-600">{r.bairro} • {r.vagas} vaga(s)</p></div><button className="btn-principal text-sm px-4 py-2" onClick={()=>aceitar(r.id)}>Aceitar</button></div>)}
+      </div>
     </div>}
     {toast&&<div className="toast">{toast}</div>}
   </div>;
