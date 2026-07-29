@@ -59,15 +59,14 @@ function App() {
     let ativo=true;
     async function carregar(){
       const {data:res}=await supabase.from('reservas').select('*').eq('id_viagem',ID_VIAGEM_PADRAO); if(ativo&&res) setReservas(res);
-      // Ajustado para o nome exato da tabela com espaço ou underscore conforme configurado no banco
-      const {data:pos}=await supabase.from('posicoes veiculos').select('*').eq('id_viagem',ID_VIAGEM_PADRAO).order('atualizado_em',{ascending:false}).limit(1);
+      const {data:pos}=await supabase.from('posicoes_veiculos').select('*').eq('id_viagem',ID_VIAGEM_PADRAO).order('atualizado_em',{ascending:false}).limit(1);
       if(ativo&&pos?.length) setPosicaoVeiculo({x:pos[0].x,y:pos[0].y,lat:pos[0].lat,lng:pos[0].lng});
     }
     carregar();
     const sr=supabase.channel('r').on('postgres_changes',{event:'*',table:'reservas',filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`},(m)=>{
       setReservas(l=>[...l.filter(x=>x.id!==m.new?.id),m.new].filter(Boolean));
     }).subscribe();
-    const sp=supabase.channel('p').on('postgres_changes',{event:'INSERT',table:'posicoes veiculos',filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`},(m)=>{if(m.new) setPosicaoVeiculo({x:m.new.x,y:m.new.y,lat:m.new.lat,lng:m.new.lng});}).subscribe();
+    const sp=supabase.channel('p').on('postgres_changes',{event:'INSERT',table:'posicoes_veiculos',filter:`id_viagem=eq.${ID_VIAGEM_PADRAO}`},(m)=>{if(m.new) setPosicaoVeiculo({x:m.new.x,y:m.new.y,lat:m.new.lat,lng:m.new.lng});}).subscribe();
     return ()=>{ativo=false;supabase.removeChannel(sr);supabase.removeChannel(sp);};
   },[]);
 
@@ -82,10 +81,9 @@ function App() {
   }
   async function cancelar(id){await supabase.from('reservas').update({status:'cancelada'}).eq('id',id); mostrarToast('Cancelado');}
 
-  // Função para o motorista simular o envio da posição no mapa
   async function moverVeiculoSimulacao(bairroTarget) {
     const novaPos = { id_viagem: ID_VIAGEM_PADRAO, x: bairroTarget.x, y: bairroTarget.y, lat: bairroTarget.lat, lng: bairroTarget.lng, atualizado_em: new Date() };
-    const { error } = await supabase.from('posicoes veiculos').insert(novaPos);
+    const { error } = await supabase.from('posicoes_veiculos').insert(novaPos);
     if(error) return mostrarToast('Erro ao mover: ' + error.message);
     mostrarToast('Veículo movido para ' + bairroTarget.nome);
   }
